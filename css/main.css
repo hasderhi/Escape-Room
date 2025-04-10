@@ -1,0 +1,123 @@
+body {
+    font-family: 'Oxanium';
+}
+
+h1 {
+    font-size: 60px;
+    margin-left: 5%;
+}
+
+.advisor {
+    font-size: 30px;
+    bottom:0px;
+}
+
+.start-button {
+    font-family: 'Oxanium', monospace;
+    font-size: 1.5rem;
+    margin-right: 5%;
+    padding: 0.75rem 2rem;
+    color: #b9ddd6;
+    background: transparent;
+    border: 2px solid #8cc0b6;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px #a4e0d4, 0 0 20px #00ffcc44;
+  }
+  
+.start-button::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: #00ffcc22;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.start-button:hover::before {
+    opacity: 1;
+}
+
+.start-button:hover {
+    box-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc88;
+    transform: scale(1.03);
+}
+
+.start-button:active {
+    box-shadow: 0 0 5px #00ffcc;
+    transform: scale(0.98);
+}
+
+
+
+
+.corner-box {
+    position: relative;
+    width: 700px;
+    height: 500px;
+    color: white;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 40px auto;
+    background: none;
+  }
+  
+.corner-box::before,
+.corner-box::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid white;
+    border-radius: 0;
+}
+
+.corner-box::before {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-box::after {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+}
+
+.corner-box span::before,
+.corner-box span::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid white;
+    border-radius: 0;
+}
+
+.corner-box span::before {
+    top: 0;
+    right: 0;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-box span::after {
+    bottom: 0;
+    left: 0;
+    border-right: none;
+    border-top: none;
+}
