@@ -74,11 +74,26 @@
             <button id="send-message">Send</button>
           </div>
         </div>
+        <div id="text-editor" class="window hidden">
+          <div class="text-editor-header" id="text-editor-header">
+            <div class="window-controls">
+              <div class="window-dot red"></div>
+              <div class="window-dot yellow"></div>
+              <div class="window-dot green"></div>
+            </div>
+            <div class="editor-title">Text Editor</div>
+          </div>
+          <div class="text-editor-toolbar">
+            <button id="save-file">Save</button>
+          </div>
+          <textarea id="editor-content" placeholder="Start typing..."></textarea>
+        </div>        
     </div>
     <script src="js/main_transition.js"></script>
     <script src="js/main.js"></script>
     <script src="js/terminal.js"></script>
     <script src="js/browser.js"></script>
+    <script src="js/editor.js"></script>
     <script>
       (function() {
         const messagesApp = document.getElementById("messages-app");

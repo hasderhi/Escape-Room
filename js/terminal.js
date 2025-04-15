@@ -152,6 +152,14 @@ function processInput(input) {
         dateCommand();
     } else if (input === 'browser') {
         openBrowser();
+    } else if (input.startsWith("editor ")) {
+        const path = input.slice(7).trim();
+        const pathArray = path.split('/').filter(p => p); // A message to future Tobias: Do not unshift '/' or else the filepath is always invalid!
+    
+        openTextEditor(['/', ...pathArray]); // Add '/' as root
+        return;
+    } else if (input.startsWith('shutdown')) {
+        shutdownCommand();
     } else if (input === 'ipconfig') {
         printToTerminal(`---Network configuration---
 
@@ -193,7 +201,19 @@ function processInput(input) {
 
 
 
-
+function getFileFromPath(path) {
+    const parts = path.split('/').filter(Boolean);
+    let node = fileSystem['/'];
+    
+    for (const part of parts) {
+      if (node.type === 'directory' && node.contents[part]) {
+        node = node.contents[part];
+      } else {
+        return null;
+      }
+    }
+    return node;
+}
 
 
 
@@ -343,7 +363,6 @@ function checkIPType(ip) {
 }
 
 
-  
 function pwdCommand() {
     const path = currentPath.join('/');
     printToTerminal(path === '' ? '/' : path);
@@ -519,4 +538,11 @@ GitHub: hasderhi
 Have fun playing!
 
 `);
+}
+
+function shutdownCommand() {
+    printToTerminal("Logout")
+    setTimeout(() => {
+        goToStart()
+    }, 1000);
 }
