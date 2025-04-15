@@ -2,7 +2,7 @@
 
 ## A hacker-style escape room game made entirely with HTML, CSS and JavaScript
 
-![Screenshot of the in-game desktop with the terminal opened.](media/img/screenshot1.png)
+![Screenshot of the in-game desktop with the terminal opened.](src/media/img/screenshot1.png)
 
 Do you know how to use linux and do you like escape rooms? Then this might be for you...
 In this game, you have to follow instructions, use the terminal with its many commands and
@@ -13,7 +13,7 @@ As this game is still under development, there is only one level so far, but the
 future. Also, this is my first game to develop, so if you have any ideas how to improve it, feel free
 to open an issue!
 
-![Screenshot of the in-game desktop with the webbrowser opened.](media/img/screenshot2.png)
+![Screenshot of the in-game desktop with the webbrowser opened.](src/media/img/screenshot2.png)
 
 ## How to play
 
@@ -21,7 +21,7 @@ To start playing, download the repository and open ```index.html```. From there,
 For the best experience I recommend using fullscreen mode (F11 in most browsers). Now you should be in
 an simulated desktop environment. Have fun playing!
 
-![The terminal with a list of usable commands.](media/img/screenshot3.png)
+![The terminal with a list of usable commands.](src/media/img/screenshot3.png)
 
 ## The terminal
 
