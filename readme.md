@@ -56,6 +56,6 @@ There are a few hidden commands and easter eggs, but I won't list them here.
 
 - Add more levels
 - Add more commands
-- Add a text editor (Maybe even a small scripting language)
+- Add a scripting language
 - Improve the GUI (Yes I know, the terminal is behaving weirdly when dragged)
 - Add a real storyline
