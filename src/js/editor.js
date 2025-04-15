@@ -1,29 +1,3 @@
-let currentFilePath = null;
-
-function openTextEditor(pathArray) {
-    let ref = fileSystem['/'];
-    for (let i = 1; i < pathArray.length - 1; i++) {
-        if (ref.type === 'directory' && ref.contents[pathArray[i]]) {
-            ref = ref.contents[pathArray[i]];
-        } else {
-            alert('Error: Invalid file path.');
-            return;
-        }
-    }
-
-    const filename = pathArray[pathArray.length - 1];
-    const file = ref.contents[filename];
-
-    if (file && file.type === 'file') {
-        currentFilePath = pathArray;
-        document.getElementById('editor-content').value = file.content;
-        document.getElementById('text-editor').classList.remove('hidden');
-    } else {
-        alert('Cannot open file: Not found or not a valid file.');
-    }
-}
-
-  
 document.querySelector('#text-editor .window-dot.red').addEventListener('click', () => {
     document.getElementById('text-editor').classList.add('hidden');
     currentFilePath = null;
@@ -54,6 +28,35 @@ document.addEventListener('mouseup', () => {
 })('text-editor', 'text-editor-header');
   
 
+
+
+
+
+
+let currentFilePath = null;
+
+function openTextEditor(pathArray) {
+    let ref = fileSystem['/'];
+    for (let i = 1; i < pathArray.length - 1; i++) {
+        if (ref.type === 'directory' && ref.contents[pathArray[i]]) {
+            ref = ref.contents[pathArray[i]];
+        } else {
+            alert('Error: Invalid file path.');
+            return;
+        }
+    }
+
+    const filename = pathArray[pathArray.length - 1];
+    const file = ref.contents[filename];
+
+    if (file && file.type === 'file') {
+        currentFilePath = pathArray;
+        document.getElementById('editor-content').value = file.content;
+        document.getElementById('text-editor').classList.remove('hidden');
+    } else {
+        alert('Cannot open file: Not found or not a valid file.');
+    }
+}
 
 document.getElementById('save-file').addEventListener('click', () => {
     const content = document.getElementById('editor-content').value;

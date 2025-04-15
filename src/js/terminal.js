@@ -1,32 +1,17 @@
-function doDate()
-{
-    var str = "";
-    var months = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
-    var now = new Date();
-    str += now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear() + " " + now.getHours() +":" + now.getMinutes() + ":" + now.getSeconds();
-    document.getElementById("date").innerHTML = str;
-}
+const terminalWindow = document.querySelector('.terminal-window');
+const terminalHeader = document.querySelector('.terminal-header');
 
-setInterval(doDate, 1000);
+const closeButton = document.querySelector('.close-button');
+closeButton.addEventListener('click', hideTerminal);
 
 function showTerminal() {
     const hide = document.getElementById('terminal-hide');
     hide.style.visibility = 'visible';
 }
-
-const closeButton = document.querySelector('.close-button');
-closeButton.addEventListener('click', hideTerminal);
-
-
 function hideTerminal() {
     const hide = document.getElementById('terminal-hide');
     hide.style.visibility = 'hidden';
 }
-
-
-
-const terminalWindow = document.querySelector('.terminal-window');
-const terminalHeader = document.querySelector('.terminal-header');
 
 let isDragging = false;
 let offsetX = 0;
@@ -34,9 +19,11 @@ let offsetY = 0;
 
 terminalHeader.addEventListener('mousedown', (e) => {
     isDragging = true;
-    offsetX = e.clientX - terminalWindow.offsetLeft;
-    offsetY = e.clientY - terminalWindow.offsetTop;
-    document.body.style.userSelect = 'none'; // prevent text selection while dragging
+    const rect = terminalWindow.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    terminalHeader.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none';
 });
 
 document.addEventListener('mousemove', (e) => {
@@ -48,13 +35,28 @@ document.addEventListener('mousemove', (e) => {
 
 document.addEventListener('mouseup', () => {
     isDragging = false;
-    document.body.style.userSelect = ''; // restore text selection
+    terminalHeader.style.cursor = 'grab';
+    document.body.style.userSelect = '';
 });
 
 
 
 
 
+
+
+
+
+function doDate()
+{
+    var str = "";
+    var months = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+    var now = new Date();
+    str += now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear() + " " + now.getHours() +":" + now.getMinutes() + ":" + now.getSeconds();
+    document.getElementById("date").innerHTML = str;
+}
+
+setInterval(doDate, 1000);
 
 
 
