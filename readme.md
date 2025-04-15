@@ -38,6 +38,7 @@ mkdir -dir          > Creates new directory
 rm -file            > Deletes a file
 cat -file           > Views contents of a file
 echo -text > -file  > Prints text to terminal or saves it to a file when used echo -text > -file
+editor -file       > Opens the editor with a specified file (Absolute filepath)
 curl -o -url -file  > Downloads a file from an URL
 pwd                 > Prints current directory
 whoami              > Prints current user

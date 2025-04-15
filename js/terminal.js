@@ -155,9 +155,10 @@ function processInput(input) {
     } else if (input.startsWith("editor ")) {
         const path = input.slice(7).trim();
         const pathArray = path.split('/').filter(p => p); // A message to future Tobias: Do not unshift '/' or else the filepath is always invalid!
-    
         openTextEditor(['/', ...pathArray]); // Add '/' as root
         return;
+    } else if (input === 'editor') {
+        printToTerminal("editor command usage: editor filepath");
     } else if (input.startsWith('shutdown')) {
         shutdownCommand();
     } else if (input === 'ipconfig') {
@@ -166,6 +167,15 @@ function processInput(input) {
             2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
             inet 192.168.1.10/24 brd 192.168.1.255 scope global dynamic eth0
             valid_lft 86010sec preferred_lft 86010sec
+
+            lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+                inet 127.0.0.1  netmask 255.0.0.0
+                inet6 ::1  prefixlen 128  scopeid 0x10<host>
+                loop  txqueuelen 1000  (Local Loopback)
+                RX packets 16  bytes 1915 (1.9 KB)
+                RX errors 0  dropped 0  overruns 0  frame 0
+                TX packets 16  bytes 1915 (1.9 KB)
+                TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
             `)
     } else if (input === 'slashfetch') {
         slashFetchCommand();
@@ -463,6 +473,7 @@ function terminalHelp() {
         rm  -file           &gt; Deletes a file
         cat  -file          &gt; Views contents of a file
         echo  -text > -file &gt; Prints text to terminal or saves it to a file when used echo -text > -file
+        editor -file        &gt; Opens the editor with a specified file (Absolute filepath)
         curl -o -url -file  &gt; Downloads a file from an URL
         pwd                 &gt; Prints current directory
         whoami              &gt; Prints current user
