@@ -250,36 +250,45 @@ function decryptFile(fileName) {
     }
   
     const userKey = prompt("Enter decryption key:");
-    setTimeout(() => {
-        printToTerminal(`Applying key ${userKey} to ${fileName}`);
-    }, 500);
-    setTimeout(() => {
-        printToTerminal(`Base64 encoding detected`);
-    }, 1000);
-    setTimeout(() => {
-        printToTerminal(`Processing Block 1/4...`);
-    }, 1300);
-    setTimeout(() => {
-        printToTerminal(`Processing Block 2/4...`);
-    }, 2000);
-    setTimeout(() => {
-        printToTerminal(`Processing Block 3/4...`);
-    }, 2500);
-    setTimeout(() => {
-        printToTerminal(`Processing Block 4/4...`);
-    }, 3500);
-    setTimeout(() => {
-        printToTerminal(`Generating output...`);
-    }, 4200);
     if (userKey === "atob") {
-      const decoded = atob(file.content); // base64
-      setTimeout(() => {
-        printToTerminal(`Decryption successful:\n${decoded}`);
-    }, 4900);
-    } else {
-      setTimeout(() => {
-        printToTerminal("decrypt: Decryption failed. Wrong key.");
-    }, 4900);
+        try {
+            const decoded = atob(file.content); // base64
+
+            setTimeout(() => {
+                printToTerminal(`Base64 encoding detected`);
+            }, 1000);
+            setTimeout(() => {
+                printToTerminal(`Processing Block 1/4...`);
+            }, 1300);
+            setTimeout(() => {
+                printToTerminal(`Processing Block 2/4...`);
+            }, 2000);
+            setTimeout(() => {
+                printToTerminal(`Processing Block 3/4...`);
+            }, 2500);
+            setTimeout(() => {
+                printToTerminal(`Processing Block 4/4...`);
+            }, 3500);
+            setTimeout(() => {
+                printToTerminal(`Generating output...`);
+            }, 4200);
+            setTimeout(() => {
+                printToTerminal(`Decryption successful:\n${decoded}`);
+            }, 4900);
+        }
+        catch (error) {
+            printToTerminal(`decrypt: Decryption failed. File is not encoded correctly. ${error}`)
+            return;
+        }
+        
+    }
+    else {
+        setTimeout(() => {
+            printToTerminal(`Applying key ${userKey} to ${fileName}`);
+        }, 500);
+        setTimeout(() => {
+            printToTerminal("decrypt: Decryption failed. Wrong key.");
+        }, 1000);
     }
 }
   

@@ -87,7 +87,7 @@ function simulateBrowserNavigation(url) {
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
     
-                if (username === 'user422' && password === 'metallic') {
+                if (username === 'agent422' && password === 'metallic') {
                     simulateBrowserNavigation('vault.local/success');
                 } else {
                     simulateBrowserNavigation('vault.local/login');
