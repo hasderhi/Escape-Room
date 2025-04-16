@@ -273,7 +273,7 @@ function decryptFile(fileName) {
                 printToTerminal(`Generating output...`);
             }, 4200);
             setTimeout(() => {
-                printToTerminal(`Decryption successful:\n${decoded}`);
+                printToTerminal(`Decryption successful:\nContent:\n\n"${decoded}"`);
             }, 4900);
         }
         catch (error) {
