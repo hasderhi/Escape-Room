@@ -1,4 +1,4 @@
-# Decrypted - Escape Room Game
+# Decrypted - Escape Room Game [DEMO]
 
 ## A hacker-style escape room game made entirely with HTML, CSS and JavaScript
 
@@ -9,7 +9,7 @@ In this game, you have to follow instructions, use the terminal with its many co
 try to decrypt encrypted data to proceed. You have a linux-style terminal with many available
 commands, a webbrowser and an app to communicate with your boss.
 
-As this game is still under development, there is only one level so far, but there will be more in the
+As this is only a demo of the upcoming game, there is only one level so far, but there will be more in the
 future. Also, this is my first game to develop, so if you have any ideas how to improve it, feel free
 to open an issue!
 
@@ -38,7 +38,8 @@ mkdir -dir          > Creates new directory
 rm -file            > Deletes a file
 cat -file           > Views contents of a file
 echo -text > -file  > Prints text to terminal or saves it to a file when used echo -text > -file
-editor -file       > Opens the editor with a specified file (Absolute filepath)
+editor -file        > Opens the editor with a specified file (Absolute filepath)
+run -file           > Runs a .slash file (Absolute filepath)
 curl -o -url -file  > Downloads a file from an URL
 pwd                 > Prints current directory
 whoami              > Prints current user
@@ -48,14 +49,69 @@ decrypt -file       > Decrypt a file using a key
 ipconfig            > Shows network configuration
 ping -ip            > Pings an IP address
 exit                > Exits the terminal
+shutdown            > Shuts down the "OS" (Goes to the start page)
+```
+
+Debug commands:
+
+```bash
+storefs             > Saves the current state of the simulated filesystem to LocalStorage
+loadfs              > Loads a previously saved state of the filesystem
+clearfs             > Deletes the filesystem from LocalStorage
 ```
 
 There are a few hidden commands and easter eggs, but I won't list them here.
+
+## SlashScript
+
+The game has a built-in scripting language called SlashScript that currently
+has no purpose for the gameplay, but will be used in later levels.
+
+The language mainly consists of all commands that can be run through the terminal. For example,
+the command ```echo``` can be run through the terminal as well as through SlashScript.
+
+To create and run SlashScript, create a ```.slash``` file in any directory with the ```touch``` command.
+Next, open the file with the ```editor``` command (Recommended, you can also use ```echo``` but it can be confusing).
+Write any SlashScript code and save the file.
+To run it, enter ```run -absolute filepath``` (For example: ```run /home/test.slash```). The terminal will now try to
+execute it. If a command is not recognised, the terminal will output an error. If there is an error with the SlashScript
+Syntax itself, the interpreter will output a custom error.
+
+### Syntax
+
+This is example code with all the current syntax in SlashScript:
+
+```bash
+# This is a comment
+
+# Variable declaration
+set myNum = 1
+
+# If/Else
+if [myNum == 1]
+echo myNum is 1
+else
+echo myNum is not 1 but $myNum
+endif
+
+# For loops
+for i in 1 2 3
+echo Deploying script $i
+endfor
+
+# Function declaration
+function intro
+    echo === Welcome ===
+    echo This is SlashScript!
+endfunc
+
+# Function calling
+intro
+```
 
 ## ToDo-List
 
 - Add more levels
 - Add more commands
-- Add a scripting language
-- Improve the GUI (Yes I know, the terminal is behaving weirdly when dragged)
+- Improve the scripting language
 - Add a real storyline

@@ -61,7 +61,7 @@ setInterval(doDate, 1000);
 
 
 
-const fileSystem = {
+let fileSystem = {
     '/': {
       type: 'directory',
       contents: {
@@ -90,6 +90,37 @@ Type 'help' if you need assistance.`
 let currentPath = ['/']; // root
 let whoamiCount = 0;
 
+
+
+function storeFileSystem() {
+    try {
+        localStorage.setItem('slashFileSystem', JSON.stringify(fileSystem));
+        printToTerminal('File system stored successfully.');
+    } catch (e) {
+        printToTerminal('Error storing file system: ' + e.message);
+    }
+}
+
+function loadFileSystem() {
+    try {
+        const data = localStorage.getItem('slashFileSystem');
+        if (data) {
+            fileSystem = JSON.parse(data);
+            printToTerminal('File system loaded from local storage.');
+        } else {
+            printToTerminal('No file system found in local storage.');
+        }
+    } catch (e) {
+        printToTerminal('Error loading file system: ' + e.message);
+    }
+}
+
+function clearFileSystem() {
+    localStorage.removeItem('slashFileSystem');
+    printToTerminal('File system removed from local storage.');
+}
+
+
 const inputField = document.getElementById('terminal-input');
   const terminalOutput = document.getElementById('terminal-output');
 
@@ -113,6 +144,12 @@ const inputField = document.getElementById('terminal-input');
 function processInput(input) {
     if (input === "help") {
         terminalHelp();
+    } else if (input === 'storefs') {
+        storeFileSystem();
+    } else if (input === 'loadfs') {
+        loadFileSystem();
+    } else if (input === 'clearfs') {
+        clearFileSystem()
     } else if (input === "clear") {
         clear();
         return;
@@ -200,6 +237,9 @@ function processInput(input) {
         } else {
             printToTerminal('curl: failed to download file');
         }
+    } else if (input.startsWith("run ")) {
+        const arg = input.slice(4).trim();
+        runSlashFile(arg);
     } else if (input === 'exit') {
         clear();
         hideTerminal();
@@ -485,6 +525,7 @@ function terminalHelp() {
         cat  -file          &gt; Views contents of a file
         echo  -text > -file &gt; Prints text to terminal or saves it to a file when used echo -text > -file
         editor -file        &gt; Opens the editor with a specified file (Absolute filepath)
+        run -file           &gt; Runs a .slash file (Absolute filepath)
         curl -o -url -file  &gt; Downloads a file from an URL
         pwd                 &gt; Prints current directory
         whoami              &gt; Prints current user
@@ -493,7 +534,13 @@ function terminalHelp() {
         decrypt             &gt; Decrypt a file using a key
         ipconfig            &gt; Shows network configuration
         ping -ip            &gt; Pings an IP address
-        exit                &gt; Exits the terminal`);
+        exit                &gt; Exits the terminal
+        shutdown            &gt; Shuts down the system
+        
+        [Debug Options]
+        storefs             &gt; Saves the current state of the simulated filesystem to LocalStorage
+        loadfs              &gt; Loads a previously saved state of the filesystem
+        clearfs             &gt; Deletes the filesystem from LocalStorage`);
 }
 
 
@@ -568,3 +615,218 @@ function shutdownCommand() {
         goToStart()
     }, 1000);
 }
+
+
+
+
+
+
+
+
+// Scripting logic (new)
+
+function runSlashFile(path) {
+    const pathArray = path.split('/').filter(p => p);
+    const fullPath = ['/', ...pathArray];
+
+    let ref = fileSystem['/'];
+    for (let i = 1; i < fullPath.length - 1; i++) {
+        if (ref.type === 'directory' && ref.contents[fullPath[i]]) {
+            ref = ref.contents[fullPath[i]];
+        } else {
+            printToTerminal('Invalid path to .slash file.');
+            return;
+        }
+    }
+
+    const filename = fullPath[fullPath.length - 1];
+    const file = ref.contents[filename];
+
+    if (!file || file.type !== 'file') {
+        printToTerminal('Invalid .slash file.');
+        return;
+    }
+
+    const lines = file.content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    printToTerminal(`Running ${filename}...`);
+
+    const slashVariables = {};
+    const functions = {};
+    let i = 0;
+
+    // First pass: collect all functions
+    while (i < lines.length) {
+        if (lines[i].startsWith('function ')) {
+            const funcName = lines[i].split(' ')[1];
+            const funcBody = [];
+            i++;
+
+            while (i < lines.length && lines[i] !== 'endfunc') {
+                funcBody.push(lines[i]);
+                i++;
+            }
+
+            if (i >= lines.length || lines[i] !== 'endfunc') {
+                printToTerminal(`Syntax error: Missing 'endfunc' for function '${funcName}'.`);
+                return;
+            }
+
+            functions[funcName] = funcBody;
+        }
+        i++;
+    }
+
+    // Second pass: run script
+    i = 0;
+    while (i < lines.length) {
+        let line = lines[i].split('#')[0].trim(); // Skip comments (# Comment)
+        if (line.length === 0) {
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('function ')) {
+            while (i < lines.length && lines[i] !== 'endfunc') {
+                i++;
+            }
+            i++; // skip endfunc
+            continue;
+        }
+
+        if (functions[line]) {
+            const funcLines = functions[line];
+            for (let cmd of funcLines) {
+                const replacedCmd = replaceVariables(cmd, slashVariables);
+                processInput(replacedCmd);
+            }
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('set ')) {
+            const parts = line.slice(4).split('=');
+            if (parts.length !== 2) { // if this happens, the variable is not declared right
+                printToTerminal(`Syntax error: Invalid variable declaration '${line}'`);
+                return;
+            }
+            const key = parts[0].trim();
+            const value = parts[1].trim();
+            slashVariables[key] = value;
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('if ')) {
+            const conditionRaw = line.slice(3).trim();
+            const cleanedCondition = conditionRaw.replace(/^\[|\]$/g, '').trim(); // Debugging: Bug #003
+            const condition = replaceVariables(cleanedCondition, slashVariables);
+            const isTrue = evaluateCondition(condition);
+
+
+            const trueBlock = [];
+            const falseBlock = [];
+            let inElse = false;
+            i++;
+
+            let foundEndif = false;
+            while (i < lines.length) {
+                if (lines[i] === 'endif') {
+                    foundEndif = true;
+                    break;
+                }
+                if (lines[i] === 'else') {
+                    if (inElse) {
+                        printToTerminal(`Syntax error: Multiple 'else' blocks.`);
+                        return;
+                    }
+                    inElse = true;
+                } else {
+                    const cmd = replaceVariables(lines[i], slashVariables);
+                    (inElse ? falseBlock : trueBlock).push(cmd);
+                }
+                i++;
+            }
+
+            if (!foundEndif) {
+                printToTerminal(`Syntax error: Missing 'endif' for if block.`);
+                return;
+            }
+
+            const blockToRun = isTrue ? trueBlock : falseBlock;
+            for (let cmd of blockToRun) {
+                processInput(cmd);
+            }
+
+            i++; // Skip 'endif'
+            continue;
+        }
+
+        if (line.startsWith('for ')) {
+            const forParts = line.split(' ');
+            if (forParts.length < 4 || forParts[2] !== 'in') {
+                printToTerminal(`Syntax error: Invalid for loop syntax.`);
+                return;
+            }
+
+            const loopVar = forParts[1];
+            const values = forParts.slice(3);
+
+            const loopBlock = [];
+            i++;
+
+            let foundEndfor = false;
+            while (i < lines.length) {
+                if (lines[i] === 'endfor') {
+                    foundEndfor = true;
+                    break;
+                }
+                loopBlock.push(lines[i]);
+                i++;
+            }
+
+            if (!foundEndfor) {
+                printToTerminal(`Syntax error: Missing 'endfor' for loop.`);
+                return;
+            }
+
+            for (let val of values) {
+                slashVariables[loopVar] = val;
+                for (let cmd of loopBlock) {
+                    const replacedCmd = replaceVariables(cmd, slashVariables);
+                    processInput(replacedCmd);
+                }
+            }
+
+            i++; // skip endfor
+            continue;
+        }
+
+        // Default
+        line = replaceVariables(line, slashVariables);
+        processInput(line);
+        i++;
+    }
+}
+
+function evaluateCondition(condition) {
+    // Remove brackets and trim
+    condition = condition.replace(/^\[|\]$/g, '').trim();
+
+    const [left, operator, right] = condition.split(' ');
+
+    switch (operator) {
+        case '==': return left === right;
+        case '!=': return left !== right;
+        case '>': return parseFloat(left) > parseFloat(right);
+        case '<': return parseFloat(left) < parseFloat(right);
+        default: return false;
+    }
+}
+
+function replaceVariables(line, variables) {
+    return line.replace(/\$[a-zA-Z_][a-zA-Z0-9_]*/g, match => {
+        const varName = match.slice(1);
+        return variables[varName] !== undefined ? variables[varName] : match;
+    });
+}
+
