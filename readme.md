@@ -97,7 +97,7 @@ set myVar = "World"
 echo $myVar
 
 # If/Else
-if [myNum == 1]
+if [$myNum == 1]
 echo myNum is 1
 else
 echo myNum is not 1 but $myNum

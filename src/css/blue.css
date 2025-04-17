@@ -1,0 +1,15 @@
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(32,125,245);
+    background: -moz-radial-gradient(circle, rgba(32,125,245,1) 0%, rgba(0,0,0,1) 63%);
+    background: -webkit-radial-gradient(circle, rgba(32,125,245,1) 0%, rgba(0,0,0,1) 63%);
+    background: radial-gradient(circle, rgba(32,125,245,1) 0%, rgba(0,0,0,1) 63%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#207df5",endColorstr="#000000",GradientType=1); 
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+    z-index: 0;
+}
