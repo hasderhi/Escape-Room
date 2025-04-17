@@ -5,7 +5,8 @@
 Do you know how to use linux and do you like escape rooms? Then this might be for you...
 In this game, you have to follow instructions, use the terminal with its many commands and
 try to decrypt encrypted data to proceed. You have a linux-style terminal with many available
-commands, a webbrowser and an app to communicate with your boss.
+commands, a webbrowser and an app to communicate with your boss. Also, you have a dedicated
+scripting language which you can use to automate tasks.
 
 As this is only a demo of the upcoming game, there is only one level so far, but there will be more in the
 future. Also, this is my first game to develop, so if you have any ideas how to improve it, feel free
