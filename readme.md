@@ -126,6 +126,10 @@ endfunc
 set result = call add 3 4
 echo $result
 
+# Prompting for input and assigning it
+input name = What is your name?
+echo Hello, $name!
+
 ```
 
 ## ToDo-List

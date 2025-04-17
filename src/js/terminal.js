@@ -41,12 +41,6 @@ document.addEventListener('mouseup', () => {
 
 
 
-
-
-
-
-
-
 function doDate()
 {
     var str = "";
@@ -55,9 +49,7 @@ function doDate()
     str += now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear() + " " + now.getHours() +":" + now.getMinutes() + ":" + now.getSeconds();
     document.getElementById("date").innerHTML = str;
 }
-
 setInterval(doDate, 1000);
-
 
 
 
@@ -85,12 +77,9 @@ Type 'help' if you need assistance.`
         }
       }
     }
-  };
+};
 
 let currentPath = ['/']; // root
-let whoamiCount = 0;
-
-
 
 function storeFileSystem() {
     try {
@@ -120,6 +109,25 @@ function clearFileSystem() {
     printToTerminal('File system removed from local storage.');
 }
 
+function getFileFromPath(path) {
+    const parts = path.split('/').filter(Boolean);
+    let node = fileSystem['/'];
+    
+    for (const part of parts) {
+      if (node.type === 'directory' && node.contents[part]) {
+        node = node.contents[part];
+      } else {
+        return null;
+      }
+    }
+    return node;
+}
+
+
+
+let whoamiCount = 0;
+
+
 
 const inputField = document.getElementById('terminal-input');
   const terminalOutput = document.getElementById('terminal-output');
@@ -138,7 +146,8 @@ const inputField = document.getElementById('terminal-input');
       }
       inputField.value = "";
     }
-  });
+});
+
 
 
 function processInput(input) {
@@ -193,8 +202,8 @@ function processInput(input) {
         openBrowser();
     } else if (input.startsWith("editor ")) {
         const path = input.slice(7).trim();
-        const pathArray = path.split('/').filter(p => p); // A message to future Tobias: Do not unshift '/' or else the filepath is always invalid!
-        openTextEditor(['/', ...pathArray]); // Add '/' as root
+        const pathArray = path.split('/').filter(p => p);
+        openTextEditor(['/', ...pathArray]);
         return;
     } else if (input === 'editor') {
         printToTerminal("editor command usage: editor filepath");
@@ -224,7 +233,6 @@ function processInput(input) {
         const parts = input.split(' ');
         const url = parts[1];
         const output = parts[3];
-        
         if (url === 'secure.local/secret.txt' && output === 'secret.txt') {
             const dir = getCurrentDir();
             dir.contents['secret.txt'] = {
@@ -252,23 +260,6 @@ function processInput(input) {
 
 
 
-
-function getFileFromPath(path) {
-    const parts = path.split('/').filter(Boolean);
-    let node = fileSystem['/'];
-    
-    for (const part of parts) {
-      if (node.type === 'directory' && node.contents[part]) {
-        node = node.contents[part];
-      } else {
-        return null;
-      }
-    }
-    return node;
-}
-
-
-
 function printToTerminal(text) {
     const terminalOutput = document.getElementById('terminal-output');
     const line = document.createElement('div');
@@ -280,20 +271,16 @@ function printToTerminal(text) {
 
 
 
-
-
 function decryptFile(fileName) {
     const file = getCurrentDir().contents[fileName];
     if (!file || file.type !== 'file') {
       printToTerminal(`decrypt: file '${fileName}' not found`);
       return;
     }
-  
     const userKey = prompt("Enter decryption key:");
     if (userKey === "atob") {
         try {
             const decoded = atob(file.content); // base64
-
             setTimeout(() => {
                 printToTerminal(`Base64 encoding detected`);
             }, 1000);
@@ -319,8 +306,7 @@ function decryptFile(fileName) {
         catch (error) {
             printToTerminal(`decrypt: Decryption failed. File is not encoded correctly. ${error}`)
             return;
-        }
-        
+        } 
     }
     else {
         setTimeout(() => {
@@ -331,7 +317,6 @@ function decryptFile(fileName) {
         }, 1000);
     }
 }
-  
 
 function finger(user) {
     if (user === 'user422') {
@@ -395,14 +380,11 @@ function ping(ip) {
     }
 }
 
-
 function checkIPType(ip) {
     const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    
     if (!regex.test(ip)) {
       return 'invalid';
     }
-
     const octets = ip.split('.').map(Number);
   
     // Class A: 10.0.0.0 - 10.255.255.255
@@ -414,28 +396,24 @@ function checkIPType(ip) {
     if (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) {
       return 'valid';
     }
-  
     // Class C: 192.168.0.0 - 192.168.255.255
     if (octets[0] === 192 && octets[1] === 168) {
       return 'valid';
     }
-  
     return 'online';
 }
-
 
 function pwdCommand() {
     const path = currentPath.join('/');
     printToTerminal(path === '' ? '/' : path);
 }
-
 function whoamiCommand() {
     if (whoamiCount < 3) {
         printToTerminal('user422');
         whoamiCount ++;
     }
     else {
-        printToTerminal('Do we all even really know who we are?');
+        printToTerminal('Do you even know that yourself?');
         whoamiCount = 0;
     }
 }
@@ -458,7 +436,6 @@ function catCommand(fileName) {
     }
 }
 
-
 function rmCommand(name) {
     const dir = getCurrentDir();
     const item = dir.contents[name];
@@ -466,13 +443,15 @@ function rmCommand(name) {
     if (!item) {
         printToTerminal(`rm: cannot remove '${name}': No such file or directory`);
     } else if (item.type === 'directory') {
-        printToTerminal(`rm: cannot remove '${name}': Is a directory`);
+        if (Object.keys(item.contents).length > 0) {
+            printToTerminal(`rm: cannot remove '${name}': Directory not empty`);
+        } else {
+            delete dir.contents[name];
+        }
     } else {
         delete dir.contents[name];
     }
 }
-
-
 
 function mkdirCommand(dirName) {
     const dir = getCurrentDir();
@@ -486,14 +465,12 @@ function mkdirCommand(dirName) {
     }
 }
 
-
 function echoCommand(input) {
     const match = input.match(/^echo\s+(.+?)(?:\s*>\s*(\S+))?$/);
     if (!match) {
         printToTerminal('echo: invalid syntax');
         return;
     }
-
     const message = match[1];
     const fileName = match[2];
 
@@ -507,11 +484,6 @@ function echoCommand(input) {
         printToTerminal(message);
     }
 }
-
-
-
-
-
 
 function terminalHelp() {
     printToTerminal(`--- HELP ---
@@ -542,7 +514,6 @@ function terminalHelp() {
         loadfs              &gt; Loads a previously saved state of the filesystem
         clearfs             &gt; Deletes the filesystem from LocalStorage`);
 }
-
 
 function clear() {
     const terminalOutput = document.getElementById('terminal-output');
@@ -618,16 +589,10 @@ function shutdownCommand() {
 
 
 
-
-
-
-
-
-// Scripting logic (new)
-
-function runSlashFile(path) {
+function runSlashFile(path, callingScript = null) {
     const pathArray = path.split('/').filter(p => p);
     const fullPath = ['/', ...pathArray];
+    let error = false;
 
     let ref = fileSystem['/'];
     for (let i = 1; i < fullPath.length - 1; i++) {
@@ -646,9 +611,9 @@ function runSlashFile(path) {
         printToTerminal('Invalid .slash file.');
         return;
     }
+    printToTerminal(`Running ${filename}...`);
 
     const lines = file.content.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    printToTerminal(`Running ${filename}...`);
 
     const slashVariables = {};
     const functions = {};
@@ -670,6 +635,7 @@ function runSlashFile(path) {
 
             if (i >= lines.length || lines[i] !== 'endfunc') {
                 printToTerminal(`Syntax error: Missing 'endfunc' for function '${funcName}'.`);
+                error = true;
                 return;
             }
 
@@ -703,12 +669,14 @@ function runSlashFile(path) {
 
             if (!functions[funcName]) {
                 printToTerminal(`Error: Function '${funcName}' not found.`);
+                error = true;
                 return;
             }
 
             const { body, args: argNames } = functions[funcName];
             if (argNames.length !== args.length) {
                 printToTerminal(`Error: '${funcName}' expects ${argNames.length} argument(s), got ${args.length}.`);
+                error = true;
                 return;
             }
 
@@ -747,6 +715,7 @@ function runSlashFile(path) {
             const parts = line.slice(4).split('=');
             if (parts.length !== 2) {
                 printToTerminal(`Syntax error: Invalid variable declaration '${line}'`);
+                error = true;
                 return;
             }
             const key = parts[0].trim();
@@ -777,6 +746,7 @@ function runSlashFile(path) {
                 if (lines[i] === 'else') {
                     if (inElse) {
                         printToTerminal(`Syntax error: Multiple 'else' blocks.`);
+                        error = true;
                         return;
                     }
                     inElse = true;
@@ -789,6 +759,7 @@ function runSlashFile(path) {
 
             if (!foundEndif) {
                 printToTerminal(`Syntax error: Missing 'endif' for if block.`);
+                error = true;
                 return;
             }
 
@@ -804,6 +775,7 @@ function runSlashFile(path) {
             const forParts = line.split(' ');
             if (forParts.length < 4 || forParts[2] !== 'in') {
                 printToTerminal(`Syntax error: Invalid for loop syntax.`);
+                error = true;
                 return;
             }
 
@@ -825,6 +797,7 @@ function runSlashFile(path) {
 
             if (!foundEndfor) {
                 printToTerminal(`Syntax error: Missing 'endfor' for loop.`);
+                error = true;
                 return;
             }
 
@@ -839,10 +812,56 @@ function runSlashFile(path) {
             i++; continue;
         }
 
+        // Input prompt: input varName = prompt text
+        if (line.startsWith('input ')) {
+            const parts = line.slice(6).split('=');
+            if (parts.length !== 2) {
+                printToTerminal(`Syntax error: Invalid input syntax in '${line}'`);
+                error = true;
+                return;
+            }
+
+            const varName = parts[0].trim();
+            const promptText = replaceVariables(parts[1].trim(), slashVariables);
+            const userInput = prompt(promptText);
+
+            if (userInput !== null) {
+                slashVariables[varName] = userInput;
+            } else {
+                printToTerminal(`Input cancelled by user.`);
+            }
+
+            i++;
+            continue;
+        }
+
+        // Prevent script from running itself
+        if (line.startsWith('run ')) {
+            const target = replaceVariables(line.slice(4).trim(), slashVariables);
+
+            // Normalize paths (remove extra slashes)
+            const targetPath = target.replace(/\/+/g, '/').replace(/\/$/, '');
+            const currentPath = path.replace(/\/+/g, '/').replace(/\/$/, '');
+
+            if (targetPath === currentPath) {
+                printToTerminal(`Error: Cannot run script '${target}' from itself.`);
+                error = true;
+                i++;
+                continue;
+            }
+
+            runSlashFile(target, path);
+            i++;
+            continue;
+        }
+
         // Default command
         line = replaceVariables(line, slashVariables);
         processInput(line);
         i++;
+    }
+    if (error === false) {
+        printToTerminal(`${filename} exited successfully.`);
     }
 }
 
