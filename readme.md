@@ -87,6 +87,14 @@ This is example code with all the current syntax in SlashScript:
 # Variable declaration
 set myNum = 1
 
+# Set myVar to "Hello"
+set myVar = "Hello"
+echo $myVar
+
+# Set myVar to "World"
+set myVar = "World"
+echo $myVar
+
 # If/Else
 if [myNum == 1]
 echo myNum is 1
@@ -107,6 +115,17 @@ endfunc
 
 # Function calling
 intro
+
+# Function with arguments
+function add a b
+set sum = $a + $b
+return $sum
+endfunc
+
+# Calling a function with arguments
+set result = call add 3 4
+echo $result
+
 ```
 
 ## ToDo-List

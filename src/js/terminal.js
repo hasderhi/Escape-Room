@@ -657,7 +657,9 @@ function runSlashFile(path) {
     // First pass: collect all functions
     while (i < lines.length) {
         if (lines[i].startsWith('function ')) {
-            const funcName = lines[i].split(' ')[1];
+            const parts = lines[i].split(' ');
+            const funcName = parts[1];
+            const argNames = parts.slice(2);
             const funcBody = [];
             i++;
 
@@ -671,7 +673,7 @@ function runSlashFile(path) {
                 return;
             }
 
-            functions[funcName] = funcBody;
+            functions[funcName] = { body: funcBody, args: argNames };
         }
         i++;
     }
@@ -679,23 +681,60 @@ function runSlashFile(path) {
     // Second pass: run script
     i = 0;
     while (i < lines.length) {
-        let line = lines[i].split('#')[0].trim(); // Skip comments (# Comment)
+        let line = lines[i].split('#')[0].trim();
         if (line.length === 0) {
             i++;
             continue;
         }
 
+        // Skip function declarations
         if (line.startsWith('function ')) {
-            while (i < lines.length && lines[i] !== 'endfunc') {
-                i++;
+            while (i < lines.length && lines[i] !== 'endfunc') i++;
+            i++; continue;
+        }
+
+        // Function call with return assignment: set x = call myFunc arg1 arg2
+        if (line.startsWith('set ') && line.includes('= call ')) {
+            const setParts = line.slice(4).split('=').map(p => p.trim());
+            const variableName = setParts[0];
+            const callParts = setParts[1].split(' ').slice(1); // skip "call"
+            const funcName = callParts[0];
+            const args = callParts.slice(1);
+
+            if (!functions[funcName]) {
+                printToTerminal(`Error: Function '${funcName}' not found.`);
+                return;
             }
-            i++; // skip endfunc
+
+            const { body, args: argNames } = functions[funcName];
+            if (argNames.length !== args.length) {
+                printToTerminal(`Error: '${funcName}' expects ${argNames.length} argument(s), got ${args.length}.`);
+                return;
+            }
+
+            const localVars = { ...slashVariables };
+            argNames.forEach((name, idx) => {
+                localVars[name] = evaluateExpression(args[idx], slashVariables);
+            });
+
+            let returnValue = '';
+            for (let cmd of body) {
+                if (cmd.startsWith('return ')) {
+                    returnValue = evaluateExpression(cmd.slice(7).trim(), localVars);
+                    break;
+                }
+                runSlashLine(cmd, localVars);
+            }
+
+            slashVariables[variableName] = returnValue;
+            i++;
             continue;
         }
 
+        // Function call without return
         if (functions[line]) {
-            const funcLines = functions[line];
-            for (let cmd of funcLines) {
+            const { body } = functions[line];
+            for (let cmd of body) {
                 const replacedCmd = replaceVariables(cmd, slashVariables);
                 processInput(replacedCmd);
             }
@@ -703,28 +742,29 @@ function runSlashFile(path) {
             continue;
         }
 
+        // Variable assignment with expression
         if (line.startsWith('set ')) {
             const parts = line.slice(4).split('=');
-            if (parts.length !== 2) { // if this happens, the variable is not declared right
+            if (parts.length !== 2) {
                 printToTerminal(`Syntax error: Invalid variable declaration '${line}'`);
                 return;
             }
             const key = parts[0].trim();
-            const value = parts[1].trim();
+            const rawValue = parts[1].trim();
+            const value = evaluateExpression(rawValue, slashVariables);
             slashVariables[key] = value;
             i++;
             continue;
         }
 
+        // If/Else
         if (line.startsWith('if ')) {
             const conditionRaw = line.slice(3).trim();
-            const cleanedCondition = conditionRaw.replace(/^\[|\]$/g, '').trim(); // Debugging: Bug #003
+            const cleanedCondition = conditionRaw.replace(/^\[|\]$/g, '').trim();
             const condition = replaceVariables(cleanedCondition, slashVariables);
             const isTrue = evaluateCondition(condition);
 
-
-            const trueBlock = [];
-            const falseBlock = [];
+            const trueBlock = [], falseBlock = [];
             let inElse = false;
             i++;
 
@@ -752,15 +792,14 @@ function runSlashFile(path) {
                 return;
             }
 
-            const blockToRun = isTrue ? trueBlock : falseBlock;
-            for (let cmd of blockToRun) {
+            for (let cmd of (isTrue ? trueBlock : falseBlock)) {
                 processInput(cmd);
             }
 
-            i++; // Skip 'endif'
-            continue;
+            i++; continue;
         }
 
+        // For loop
         if (line.startsWith('for ')) {
             const forParts = line.split(' ');
             if (forParts.length < 4 || forParts[2] !== 'in') {
@@ -797,11 +836,10 @@ function runSlashFile(path) {
                 }
             }
 
-            i++; // skip endfor
-            continue;
+            i++; continue;
         }
 
-        // Default
+        // Default command
         line = replaceVariables(line, slashVariables);
         processInput(line);
         i++;
@@ -809,9 +847,7 @@ function runSlashFile(path) {
 }
 
 function evaluateCondition(condition) {
-    // Remove brackets and trim
     condition = condition.replace(/^\[|\]$/g, '').trim();
-
     const [left, operator, right] = condition.split(' ');
 
     switch (operator) {
@@ -830,3 +866,36 @@ function replaceVariables(line, variables) {
     });
 }
 
+function evaluateExpression(expr, variables) {
+    expr = replaceVariables(expr, variables);
+    try {
+        if (/^[\d+\-*/().\s]+$/.test(expr)) {
+            return eval(expr).toString();
+        } else {
+            return expr;
+        }
+    } catch {
+        return expr;
+    }
+}
+
+function runSlashLine(line, slashVariables) {
+    line = line.split('#')[0].trim();
+    if (line.length === 0) return;
+
+    if (line.startsWith('set ')) {
+        const parts = line.slice(4).split('=');
+        if (parts.length !== 2) {
+            printToTerminal(`Syntax error: Invalid variable declaration '${line}'`);
+            return;
+        }
+        const key = parts[0].trim();
+        const rawValue = parts[1].trim();
+        const value = evaluateExpression(rawValue, slashVariables);
+        slashVariables[key] = value;
+        return;
+    }
+
+    const replaced = replaceVariables(line, slashVariables);
+    processInput(replaced);
+}
