@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decrypted</title>
+    <link rel="icon" type="image/x-icon" href="media/icons/favicon.ico">
+    <link rel="stylesheet" href="css/animate.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/gui.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="lvlID" class="hidden">0</div>
+    <div class="overlay" id="overlay"></div>
+    <div class="content" id="gameContent">
+      <div class="taskbar">
+            <div class="icon terminal">
+              <button class="invisible" onclick="showTerminal()"><img src="media/icons/terminal.png" alt="Terminal"></button>
+            </div>
+            <div class="icon browser">
+              <button class="invisible" onclick="openBrowserFromGUI()"><img src="media/icons/browser.png" alt="Browser"></button>
+            </div>
+            <div class="icon messages">
+              <button class="invisible" onclick="showMessagesApp()"><img src="media/icons/messages.png" alt="Messages"></button>
+            </div>
+            <div class="icon restart">
+              <button class="invisible" onclick="restart()"><img src="media/icons/restart.png" alt="Restart"></button>
+            </div>
+            <div class="icon text">
+              <p>
+                <span id="date">Error</span>
+              </p>
+          </div>
+        </div>
+        <div id="terminal-hide">
+          <div class="terminal-window">
+            <div class="terminal-header">
+              <div class="close-button" title="Close"></div>
+              <div class="window-dot yellow"></div>
+            </div>
+            <div class="terminal-body" id="terminal-output">
+              Slash version 2.1.234 (Stable)<br>
+              Type <code>help</code> for a list of possible commands.
+            </div>
+            <input type="text" class="terminal-input" placeholder="Type a command..." id="terminal-input">
+          </div>
+        </div>
+        <div class="browser-window hidden" id="browser">
+          <div class="browser-header" id="browser-header">
+            <div class="window-controls">
+              <div class="window-dot red"></div>
+              <div class="window-dot yellow"></div>
+              <div class="window-dot green"></div>
+            </div>
+            <span class="browser-title">Slash Browser</span>
+          </div>
+          <div class="browser-url-bar">
+            <input type="text" id="browser-url" placeholder="Enter URL..." />
+          </div>
+          <div class="browser-content" id="browser-content">
+            <p>Welcome to Slash Browser. Enter any URL to start.</p>
+          </div>
+        </div>
+        <div id="messages-app" class="messages-app">
+          <div class="messages-header" id="messages-header">
+            <div class="close-button" id="close-messages" title="Close"></div>
+            <span class="window-title">Messages</span>
+          </div>
+          <div class="messages-body" id="messages-body"></div>
+          <div class="messages-footer">
+            <input type="text" id="message-input" placeholder="Type your answer...">
+            <button id="send-message">Send</button>
+          </div>
+        </div>
+        <div id="text-editor" class="window hidden">
+          <div class="text-editor-header" id="text-editor-header">
+            <div class="window-controls">
+              <div class="window-dot red"></div>
+              <div class="window-dot yellow"></div>
+              <div class="window-dot green"></div>
+            </div>
+            <div class="editor-title">Text Editor</div>
+          </div>
+          <div class="text-editor-toolbar">
+            <button id="save-file">Save</button>
+          </div>
+          <textarea id="editor-content" placeholder="Start typing..."></textarea>
+        </div>        
+    </div>
+    <script src="js/main_transition.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/browser.js"></script>
+    <script src="js/editor.js"></script>
+    <script>
+      (function() {
+        const messagesApp = document.getElementById("messages-app");
+        const messagesBody = document.getElementById("messages-body");
+        const inputField = document.getElementById("message-input");
+        const sendBtn = document.getElementById("send-message");
+        const closeMessages = document.getElementById("close-messages");
+      
+        let currentStage = 0;
+      
+        const conversation = [
+          {
+            from: "npc",
+            text: "Hey agent. You might be wondering what you are doing here. I can't tell you that right now, but I can tell you what you need to do: I am going to send you a string of encrypted data that you will have to decrypt. You are going to need a password to decrypt it. I can't tell you the password yet, but I'm sure you'll find it out. Are you ready to receive the encrypted data? Please answer Yes/No!",
+            correctAnswer: "Yes",
+            response: "Perfect! TG9naW4gZGF0YToKVXNlcm5hbWU\n6IGFnZW50NDIyClBhc3N3b3JkOiBtZXRhbGxpYw=="
+          },
+          {
+            from: "npc",
+            text: "Were you able to decrypt it? If you did please tell me the password!",
+            correctAnswer: "metallic",
+            response: "Perfect! You are almost finished! Go try it!"
+          }
+        ];
+      
+        function loadMessage(text) {
+          const message = document.createElement("div");
+          message.className = "message from-npc";
+          message.textContent = text;
+          messagesBody.appendChild(message);
+          messagesBody.scrollTop = messagesBody.scrollHeight;
+        }
+      
+        function addPlayerMessage(text) {
+          const message = document.createElement("div");
+          message.className = "message from-player";
+          message.textContent = text;
+          messagesBody.appendChild(message);
+          messagesBody.scrollTop = messagesBody.scrollHeight;
+        }
+      
+        sendBtn.addEventListener("click", () => {
+          const answer = inputField.value.trim();
+          if (!answer) return;
+      
+          addPlayerMessage(answer);
+          const stage = conversation[currentStage];
+      
+          if (answer.toLowerCase() === stage.correctAnswer.toLowerCase()) {
+            loadMessage(stage.response);
+            currentStage++;
+            if (currentStage < conversation.length) {
+              setTimeout(() => loadMessage(conversation[currentStage].text), 1500);
+            }
+          } else {
+            loadMessage("Hmm, maybe come back later... I'll be there!");
+          }
+      
+          inputField.value = "";
+        });
+      
+        closeMessages.addEventListener("click", () => {
+          messagesApp.style.display = "none";
+        });
+      
+        window.showMessagesApp = function() {
+          messagesApp.style.display = "flex";
+          messagesBody.innerHTML = '';
+          currentStage = 0;
+          loadMessage(conversation[0].text);
+        };
+      })();
+
+      function makeDraggable(element, handle) {
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+
+        handle.addEventListener("mousedown", function (e) {
+          isDragging = true;
+          offsetX = e.clientX - element.offsetLeft;
+          offsetY = e.clientY - element.offsetTop;
+          document.body.style.userSelect = "none";
+        });
+
+        document.addEventListener("mousemove", function (e) {
+          if (isDragging) {
+            element.style.left = (e.clientX - offsetX) + "px";
+            element.style.top = (e.clientY - offsetY) + "px";
+          }
+        });
+
+        document.addEventListener("mouseup", function () {
+          isDragging = false;
+          document.body.style.userSelect = "auto";
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+      const messagesApp = document.getElementById("messages-app");
+      const messagesHeader = document.getElementById("messages-header");
+
+      if (messagesApp && messagesHeader) {
+        makeDraggable(messagesApp, messagesHeader);
+      } else {
+        console.warn("Messages app or header not found in DOM.");
+      }
+    });
+      </script>
+</body>
+</html>

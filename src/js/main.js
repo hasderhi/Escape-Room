@@ -1,5 +1,5 @@
 function goToIntro() {
-    window.location.href = 'main.html';
+    window.location.href = 'intro.html';
 }
 
 function goToStart() {

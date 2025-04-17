@@ -51,18 +51,28 @@ function doDate()
 }
 setInterval(doDate, 1000);
 
+let lvl = 0;
+
+if (document.getElementById('lvlID').innerHTML === '0') {
+    lvl = 0;
+}
+else if (document.getElementById('lvlID').innerHTML === '1') {
+    lvl = 1;
+}
+
+
 
 
 let fileSystem = {
     '/': {
-      type: 'directory',
-      contents: {
+    type: 'directory',
+    contents: {
         home: {
-          type: 'directory',
-          contents: {
+        type: 'directory',
+        contents: {
             'readme.txt': {
-              type: 'file',
-              content: `Welcome Agent.
+            type: 'file',
+            content: `Welcome Agent.
 
 Internal services have moved to:
 intranet.local
@@ -70,14 +80,91 @@ intranet.local
 Type 'help' if you need assistance.`
             },
             'key.enc': {
-              type: 'file',
-              content: `atob`
+            type: 'file',
+            content: `atob`
             }
-          }
         }
-      }
+        }
+    }
     }
 };
+
+
+if (lvl === 0) {
+    fileSystem ={
+        '/':{
+           type:'directory',
+           contents:{
+
+              home:{
+                 type:'directory',
+                 contents:{
+
+                    'readme.txt':{
+                       type:'file',
+                       content:`Welcome Agent.
+                       
+                                Internal services have moved to:
+                                intranet.local
+                                    
+                                Type 'help' if you need assistance.`
+                    },
+
+                    'key.enc':{
+                       type:'file',
+                       content:`atob`
+                    }
+                 }
+              }
+           }
+        }
+     };
+}
+else if (lvl === 1) {
+    fileSystem = {
+        "/":{
+           "type":"directory",
+           "contents":{
+
+              "home":{
+                 "type":"directory",
+                 "contents":{
+
+                    "var":{
+                       "type":"directory",
+                       "contents":{
+
+                          "log":{
+                             "type":"directory",
+                             "contents":{
+
+                                "sys":{
+                                   "type":"directory",
+                                   "contents":{
+
+                                      "trace.log":{
+                                         "type":"file",
+                                         "content":`Activity Trace Log - Unknown Date
+                                            Processes:
+                                            slashDaemon.slash (OS internal verified) - PID #00012
+                                            slashBrowser.slash - PID #02123
+                                            editor.slash - PID #00567
+                                            messanger.slash - PID #00792
+                                            x_tunnel_host.slash - PID #00004
+                                                        `
+                                      }
+                                   }
+                                }
+                             }
+                          }
+                       }
+                    }
+                 }
+              }
+           }
+        }
+     }
+}
 
 let currentPath = ['/']; // root
 

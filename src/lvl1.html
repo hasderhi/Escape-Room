@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="lvlID" class="hidden">1</div>
     <div class="overlay" id="overlay"></div>
     <div class="content" id="gameContent">
       <div class="taskbar">
@@ -107,7 +108,7 @@
         const conversation = [
           {
             from: "npc",
-            text: "Hey agent. You might be wondering what you are doing here. I can't tell you that right now, but I can tell you what you need to do: I am going to send you a string of encrypted data that you will have to decrypt. You are going to need a password to decrypt it. I can't tell you the password yet, but I'm sure you'll find it out. Are you ready to receive the encrypted data? Please answer Yes/No!",
+            text: "You're being watched. They planted spyware on this system. I can't tell you what exactly it is, but it's probably a X-Tunnel. If that's the case, you may find logs in there: /var/log/sys/. Find it and shut it down before they trace you. If you found it, tell me the process ID.",
             correctAnswer: "Yes",
             response: "Perfect! TG9naW4gZGF0YToKVXNlcm5hbWU\n6IGFnZW50NDIyClBhc3N3b3JkOiBtZXRhbGxpYw=="
           },
