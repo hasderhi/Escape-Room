@@ -63,12 +63,15 @@ function simulateBrowserNavigation(url) {
             <li><a href="intranet.local/help" class="fake-link">Help page</a></li>
         </ol>
         `;
-    }
-    else if (normalizedUrl === 'intranet.local/help') {
+    } else if (normalizedUrl === 'intranet.local/help') {
       content.innerHTML = `
         <h3>Help Page</h3>
         <p>This is the internal help site.</p>
         <a href="intranet.local" class="fake-link">Go back</a>
+      `;
+    } else if (normalizedUrl === 'xhost.remote') {
+      content.innerHTML = `
+        <iframe src="attacker.html" height="590" width="970" title="Iframe"></iframe>
       `;
     } else if (normalizedUrl === 'vault.local') {
         content.innerHTML = `
